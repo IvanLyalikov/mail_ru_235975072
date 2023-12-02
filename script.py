@@ -16,7 +16,7 @@ FILES_FOR_RENAME = [
 
 # Путь к корневой папке (от которой нужно начинать поиск файлов).
 # Может быть относительным или абсолютным.
-BASE_PATH = 'temp'
+BASE_PATH = '.'
 
 # ======================================================================
 
@@ -39,7 +39,7 @@ class DeleteAction:
 class RenameAction:
     def __init__(self) -> None:
         self.renamed_files = []
-        self.patterns = [re.sub('\*', '(.*)', pattern) for pattern in FILES_FOR_RENAME]
+        self.patterns = [re.sub(r'\*', r'(.*)', pattern) for pattern in FILES_FOR_RENAME]
 
     def process(self, file: Path) -> None:
         if not file.is_file():
