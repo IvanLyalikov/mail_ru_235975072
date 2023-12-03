@@ -47,7 +47,7 @@ class RenameAction:
             return
         
         for p in self.patterns:
-            name, dot, extension = file.name.partition('.')
+            name, dot, extension = file.name.rpartition('.')
             match = re.fullmatch(p, name)
             if match is not None:
                 new_file = file.replace(file.with_name(''.join(match.groups()).strip() + dot + extension))
