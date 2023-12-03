@@ -1,17 +1,18 @@
 # Имена файлов, подлежащих удалению.
 FILES_FOR_DELETE = [
-    r'example.txt',
+    'example.txt',
 ]
 
 # Шаблоны файлов, подлежащих переименованию.
 # Примеры:
-#   abc*      : 'abc 123.txt' => '123.txt'
-#   *123      : 'abc 123.txt' => 'abc.txt'
-#   aaa*ccc   : 'aaa bbb ccc.txt' => 'bbb.txt'
-#   *111*     : 'aa111bb.txt' => 'aabb.txt'
-#   1*3*5.txt : '12345.txt' => '24.txt'
+#   abc*    : 'abc 123.txt' => '123.txt'
+#   *123    : 'abc 123.txt' => 'abc.txt'
+#   aa*cc   : 'aa bbb cc.txt' => 'bbb.txt'
+#   *111*   : 'aa111bb.txt' => 'aabb.txt'
+#   1*3*5   : '12345.txt' => '24.txt'
+#   \*\**   : '**abc.txt' => 'abc.txt'
 FILES_FOR_RENAME = [
-    r'example*'
+    '*example',
 ]
 
 # Путь к корневой папке (от которой нужно начинать поиск файлов).
@@ -39,7 +40,7 @@ class DeleteAction:
 class RenameAction:
     def __init__(self) -> None:
         self.renamed_files = []
-        self.patterns = [re.sub(r'[!"%\',/:;<=>@`_]', r'\\\g<0>', re.escape(pattern)).replace(r'\*', r'(.*)') for pattern in FILES_FOR_RENAME]
+        self.patterns = [re.sub(r'([!"%\',/:;<=>@`_])|(\\+)\*', self._repl, re.escape(pattern)) for pattern in FILES_FOR_RENAME]        
 
     def process(self, file: Path) -> None:
         if not file.is_file():
@@ -55,6 +56,12 @@ class RenameAction:
 
     def print_result(self) -> None:
         print('Переименованные файлы:', *[str(old) + ' => ' + str(new) for old, new in self.renamed_files], sep='\n')
+
+    @staticmethod
+    def _repl(m: re.Match):
+        if m[1] is not None:
+            return rf'\{m[1]}'
+        return '(.*)' if m[2] == '\\' else '\*'
 
 
 parser = ArgumentParser()
